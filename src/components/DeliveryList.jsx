@@ -33,59 +33,70 @@ function DeliveryList({ deliveries, selectedDelivery, onSelectDelivery }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="p-4 sm:p-6 border-b border-gray-200">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Active Deliveries</h2>
-        <p className="text-xs sm:text-sm text-gray-600 mt-1">{deliveries.length} packages</p>
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden backdrop-blur-sm bg-white/95">
+      <div className="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-transparent">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">Active Deliveries</h2>
+        <p className="text-xs sm:text-sm text-gray-600 mt-1 font-medium">
+          {deliveries.length} {deliveries.length === 1 ? 'package' : 'packages'}
+        </p>
       </div>
       
-      <div className="divide-y divide-gray-200 max-h-[calc(100vh-300px)] overflow-y-auto">
+      <div className="divide-y divide-gray-200 max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar">
         {deliveries.length === 0 ? (
-          <div className="p-8 text-center">
-            <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">No deliveries found</p>
+          <div className="p-8 sm:p-12 text-center animate-fade-in">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="w-8 h-8 text-gray-400" />
+            </div>
+            <p className="text-gray-600 font-medium">No deliveries found</p>
+            <p className="text-sm text-gray-500 mt-1">Try adjusting your search or filter</p>
           </div>
         ) : (
-          deliveries.map((delivery) => (
+          deliveries.map((delivery, index) => (
             <button
               key={delivery.id}
               onClick={() => onSelectDelivery(delivery)}
-              className={`w-full p-4 sm:p-6 text-left hover:bg-gray-50 transition-colors ${
-                selectedDelivery?.id === delivery.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : ''
+              style={{ animationDelay: `${index * 50}ms` }}
+              className={`w-full p-4 sm:p-6 text-left hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-200 group animate-slide-in ${
+                selectedDelivery?.id === delivery.id 
+                  ? 'bg-gradient-to-r from-primary-50 to-transparent border-l-4 border-l-primary-600 shadow-inner' 
+                  : 'hover:shadow-sm'
               }`}
+              aria-label={`View details for delivery ${delivery.trackingNumber}`}
             >
               <div className="flex items-start gap-3 sm:gap-4">
-                <div className={`p-2 sm:p-3 rounded-lg ${getStatusColor(delivery.status)} border`}>
+                <div className={`p-2 sm:p-3 rounded-xl ${getStatusColor(delivery.status)} border transform transition-transform group-hover:scale-105`}>
                   {getStatusIcon(delivery.status)}
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{delivery.recipient}</p>
-                      <p className="text-xs sm:text-sm text-gray-600 truncate">{delivery.trackingNumber}</p>
+                      <p className="font-bold text-gray-900 text-sm sm:text-base truncate">{delivery.recipient}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate font-mono">{delivery.trackingNumber}</p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(delivery.status)}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusColor(delivery.status)} shadow-sm`}>
                       {getStatusText(delivery.status)}
                     </span>
                   </div>
                   
                   <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-                    <Package className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Package className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="truncate">{delivery.destination}</span>
                   </div>
                   
                   {delivery.status === 'in-transit' && (
                     <div className="mt-3">
-                      <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                      <div className="flex items-center justify-between text-xs text-gray-600 mb-1.5 font-medium">
                         <span>Progress</span>
-                        <span>{delivery.progress}%</span>
+                        <span className="font-bold text-primary-600">{delivery.progress}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden shadow-inner">
                         <div 
-                          className="bg-primary-600 h-1.5 sm:h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-primary-600 to-primary-500 h-2 rounded-full transition-all duration-500 relative overflow-hidden"
                           style={{ width: `${delivery.progress}%` }}
-                        />
+                        >
+                          <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                        </div>
                       </div>
                     </div>
                   )}
